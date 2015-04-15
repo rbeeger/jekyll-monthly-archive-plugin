@@ -1,13 +1,13 @@
 ---
 layout: default
+siteSection: archive
 ---
-<div class="monthly-archive">
-  <div>
-    <span class="title">Monthly archive for {{page.year}}/{{page.month}}</span>
-  </div>
-  <div>
+<h2 class="page-title">Archive: {{page.date | date: "%Y &raquo; %b"}}</h2>
     <ul>
-{{ content }}
+{% for post in page.posts %}
+<h1 class="archiveEntry">
+    {{ post.date_html }}
+   :
+    <a href="{{ root_url }}{{ post.url }}">{{post.title}}</a></h1>
+{% endfor %}
     </ul>
-  </div>
-</div>

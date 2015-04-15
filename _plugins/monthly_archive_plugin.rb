@@ -56,23 +56,21 @@ module Jekyll
       @year = year
       @month = month
       @archive_dir_name = '%04d/%02d' % [year, month]
+      site.config["archivesAvailable/#{@archive_dir_name}"] = true
       @date = Date.new(@year, @month)
       @layout =  site.config['monthly_archive'] && site.config['monthly_archive']['layout'] || 'monthly_archive'
       self.ext = '.html'
       self.basename = 'index'
-      self.content = <<-EOS
-{% for post in page.posts %}<li><a href="{{ post.url }}"><span>{{ post.title }}<span></a></li>
-{% endfor %}
-      EOS
       self.data = {
           'layout' => @layout,
           'type' => 'archive',
-          'title' => "Monthly archive for #{@year}/#{@month}",
+          'title' => "Archive: #{@year} &raquo; #{Jekyll::Filters::ArchiveMonths[month.to_i]}",
           'posts' => posts,
           'url' => File.join('/',
                      MonthlyArchiveUtil.archive_base(site),
                      @archive_dir_name, 'index.html')
       }
+
     end
 
     def render(layouts, site_payload)
@@ -97,6 +95,29 @@ module Jekyll
     end
 
   end
+
+  module Filters
+    ArchiveMonths = %w(None Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
+    def archive_block(siteConfig)
+      result = ""
+      result << %Q{<ul id='smart-archives-block'>}
+      (2002..Time.now.year).reverse_each do |year|
+        result << %Q{<li><strong>#{year}:</strong> }
+        (1..12).each do |month|
+          yearMonth = "%04d/%02d" % [year, month]
+          if siteConfig["archivesAvailable/#{yearMonth}"] then
+            result << %Q{<a href="/#{yearMonth}/">#{ArchiveMonths[month]}</a> }
+          else
+            result << %Q{<span class="empty-month">#{ArchiveMonths[month]}</span> }
+          end
+        end
+        result << %Q{</li> }
+      end
+      result << %Q{</ul>}
+      result
+    end
+  end
+
 end
 
 # The MIT License (MIT)
